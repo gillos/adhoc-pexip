@@ -121,11 +121,10 @@ if __name__ == '__main__':
    app.secret_key = os.urandom(24)
    try:
       ctxt=ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-      ctxt.load_cert_chain("/etc/letsencrypt/live/%s/cert.pem" % socket.gethostname(),"/etc/letsencrypt/live/%s/privkey.pem" % socket.gethostname())
+      h=socket.gethostname()
+      ctxt.load_cert_chain("/etc/letsencrypt/live/%s/cert.pem" % h,"/etc/letsencrypt/live/%s/privkey.pem" % h)
       ctxt.options|=ssl.OP_NO_SSLv2
       ctxt.options|=ssl.OP_NO_SSLv3
       app.run(host='0.0.0.0',port=443,ssl_context=ctxt)
    except:
    	  app.run(host='0.0.0.0',port=443,ssl_context='adhoc')
-
-   
