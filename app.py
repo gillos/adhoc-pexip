@@ -31,7 +31,7 @@ def add_alias(a,name,c):
    newalias=min(alias.values())-1
    r = requests.post("https://%s/api/admin/configuration/v1/conference_alias/" % pexip_server, auth=('admin', pexip_password),data=json.dumps({'alias':newalias,'conference':c}))
    r = requests.post("https://%s/api/admin/configuration/v1/conference_alias/" % pexip_server, auth=('admin', pexip_password),data=json.dumps({'alias':name,'conference':c}))
-   r = requests.post("https://%s/api/admin/configuration/v1/conference_alias/" % pexip_server, auth=('admin', pexip_password),data=json.dumps({'alias':name+"@vconf.kth.se",'conference':c}))
+   r = requests.post("https://%s/api/admin/configuration/v1/conference_alias/" % pexip_server, auth=('admin', pexip_password),data=json.dumps({'alias':"%s@%s" % (name,pexip_url),'conference':c}))
    return newalias
 
 def pexip_create_room():
