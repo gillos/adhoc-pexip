@@ -1,5 +1,6 @@
 # adhoc-pexip
 ## to run stand-alone:
+run [certbot](https://certbot.eff.org/) first to get certs:
 ```
 	pexip_server=pexip-management-server.example.com \
 	pexip_password="pexip_admin_password" \
