@@ -47,10 +47,10 @@ def pexip_create_room():
       r = requests.post("https://%s/api/admin/configuration/v1/conference/" % pexip_server, auth=('admin', pexip_password),data=json.dumps(d))
       if r.status_code==201: break
    c=r.headers['location']
-   add_alias(l,n,c)
+   a=add_alias(l,n,c)
    r = requests.get(c, auth=('admin', pexip_password))
    rd=json.loads(r.text)
-   return (rd['name'],rd['pin'])
+   return (rd['name'],rd['pin'],a)
 
 def sendemail(l,m):
   try:
@@ -73,11 +73,6 @@ smtp_server=os.environ.get('smtp_server','')
 smtp_sender=os.environ.get('smtp_sender','')
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
-ctxt=ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-ctxt.load_cert_chain("/etc/letsencrypt/live/%s/cert.pem" % socket.gethostname(),"/etc/letsencrypt/live/%s/privkey.pem" % socket.gethostname())
-ctxt.options|=ssl.OP_NO_SSLv2
-ctxt.options|=ssl.OP_NO_SSLv3
 
 @app.route('/')
 def route_root():
@@ -89,7 +84,7 @@ def route_root():
          casuser=dom.getElementsByTagName('cas:user')[0].childNodes[0].nodeValue
       except:
          return redirect("https://%s/?service=https://%s" % (cas_server,socket.gethostname()))
-      return redirect("https://%s/success?room=%s&pin=%s" % ((socket.gethostname(),)+pexip_create_room()))
+      return redirect("https://%s/success?room=%s&pin=%s&alias=%s" % ((socket.gethostname(),)+pexip_create_room()))
    else:
       return redirect("https://%s/?service=https://%s" % (cas_server,socket.gethostname())) 
 
@@ -101,13 +96,15 @@ def success():
      pin=session['pin']
      room=session['room']
      l=message.split(',')
-     sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1" % (pexip_url,room,pin))
+     sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1\naccess code: %s" % (pexip_url,room,pin,session['alias']))
      return render_template('wait2.html',pin=pin,room=room,url=pexip_url,name=name)
    else: 
      pin=flask.request.args.get('pin','')
      room=flask.request.args.get('room','')
+     alias=flask.request.args.get('alias','')
      session['pin']=pin
      session['room']=room
+     session['alias']=alias
      return render_template('wait.html')
 
 @app.route('/wait')
@@ -121,4 +118,14 @@ def wait():
       time.sleep(3)
 
 if __name__ == '__main__':
-   app.run(host='0.0.0.0',port=443,ssl_context=ctxt)
+   app.secret_key = os.urandom(24)
+   try:
+      ctxt=ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+      ctxt.load_cert_chain("/etc/letsencrypt/live/%s/cert.pem" % socket.gethostname(),"/etc/letsencrypt/live/%s/privkey.pem" % socket.gethostname())
+      ctxt.options|=ssl.OP_NO_SSLv2
+      ctxt.options|=ssl.OP_NO_SSLv3
+      app.run(host='0.0.0.0',port=443,ssl_context=ctxt)
+   except:
+   	  app.run(host='0.0.0.0',port=443,ssl_context='adhoc')
+
+   
