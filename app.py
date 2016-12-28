@@ -71,7 +71,7 @@ smtp_server=os.environ.get('smtp_server','')
 smtp_sender=os.environ.get('smtp_sender','')
 
 app = Flask(__name__)
-app.secret_key = '\x88\x81\xaa<\x9am\x13Q\x93H \x07\xa0W\xfafw;C)\x89\xcb!\xab'
+app.secret_key = os.urandom(24)
 ctxt=ssl.SSLContext(ssl.PROTOCOL_SSLv23)
 ctxt.load_cert_chain("/etc/letsencrypt/live/%s/cert.pem" % socket.gethostname(),"/etc/letsencrypt/live/%s/privkey.pem" % socket.gethostname())
 ctxt.options|=ssl.OP_NO_SSLv2
