@@ -8,7 +8,6 @@ import socket
 import json
 import random
 import datetime
-import string
 import smtplib
 from email.mime.text import MIMEText
 import time
@@ -54,14 +53,17 @@ def pexip_create_room():
    return (rd['name'],rd['pin'])
 
 def sendemail(l,m):
-	msg = MIMEText(m)
-	msg['Subject'] = 'Meeting invite'
-	msg['From'] = smtp_sender
-	msg['To'] = ",".join(l)
-	s = smtplib.SMTP(smtp_server)
-	s.sendmail(smtp_sender, l, msg.as_string())
-	s.quit()
-	return None
+  try:
+  	msg = MIMEText(m)
+  	msg['Subject'] = 'Meeting invite'
+  	msg['From'] = smtp_sender
+  	msg['To'] = ",".join(l)
+  	s = smtplib.SMTP(smtp_server)
+  	s.sendmail(smtp_sender, l, msg.as_string())
+  	s.quit()
+  except:
+    pass
+  return None
 
 pexip_server=os.environ.get('pexip_server','')
 pexip_password=os.environ.get('pexip_password','')
