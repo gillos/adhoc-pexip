@@ -84,7 +84,7 @@ def route_root():
       x=requests.get("https://%s/serviceValidate?service=https://%s&ticket=%s" % (cas_server,socket.gethostname(),t))
       dom = xml.dom.minidom.parseString(x.text.encode('utf-8'))
       try:
-         kthid=dom.getElementsByTagName('cas:user')[0].childNodes[0].nodeValue
+         casuser=dom.getElementsByTagName('cas:user')[0].childNodes[0].nodeValue
       except:
          return redirect("https://%s/?service=https://%s" % (cas_server,socket.gethostname()))
       return redirect("https://%s/success?room=%s&pin=%s" % ((socket.gethostname(),)+pexip_create_room()))
