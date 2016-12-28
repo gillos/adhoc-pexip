@@ -1,0 +1,16 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='style.css') }}">
+<body>
+	<div class="form-style-5">
+	<form method="post" action="/success">
+	<fieldset>
+	<legend><span class="number">1</span>Meeting Info</legend>
+	<input type="text" name="name" placeholder="Your Name *">
+	<textarea name="message" placeholder="Email addresses of attendees (comma separeted list)*"></textarea>
+	</fieldset>
+	<input type="submit" value="Start videoconference" />
+	</form>
+	</div>
+</body>
+</html>

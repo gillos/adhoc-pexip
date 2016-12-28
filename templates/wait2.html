@@ -1,0 +1,17 @@
+<html>
+<head>
+<script src="{{ url_for('static',filename='jquery-3.1.1.min.js') }}"></script>
+<script>
+$.getJSON("/wait?pin={{ pin }}&room={{ room }}",function(data){
+   if (data.Done){
+      window.location.href="https://{{ url }}/webapp?name={{ name }}&conference={{ room }}&pin={{ pin }}&join=1";
+   }
+});
+</script>
+</head>
+<body>
+<pre id="bla"></pre>
+	Your room is beeing created please wait...<br>
+        <img src="{{ url_for('static',filename='ajax-loader.gif') }}">
+</body>
+</html>
