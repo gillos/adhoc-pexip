@@ -11,7 +11,6 @@ import ssl
 import flask
 from flask import Flask,redirect,render_template,session,url_for
 import requests
-#from requests.auth import HTTPBasicAuth
 
 def get_random_name():
    adjs=['blue','yellow','green','red','crazy','happy','nice','sad','cool','hot']
