@@ -19,12 +19,7 @@ def get_random_name():
 def get_pin():
    return str(random.randint(0,9999)).zfill(4)
 def add_alias(a,name,c):
-   alias={}
-   for x in a:
-      aa=x['aliases']
-      for y in aa:
-         if y.get('alias','').isdigit():
-            alias[x['name']]=int(y['alias'])
+   alias={x['name']:int(y['alias']) for y in x['aliases'] if y.get('alias','').isdigit() for x in a}
    newalias=min(alias.values())-1
    r = requests.post("https://%s/api/admin/configuration/v1/conference_alias/" % pexip_server, auth=('admin', pexip_password),data=json.dumps({'alias':newalias,'conference':c}))
    r = requests.post("https://%s/api/admin/configuration/v1/conference_alias/" % pexip_server, auth=('admin', pexip_password),data=json.dumps({'alias':name,'conference':c}))
