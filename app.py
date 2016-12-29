@@ -1,7 +1,3 @@
-import flask
-from flask import Flask,redirect,render_template,session,url_for,request
-import requests
-from requests.auth import HTTPBasicAuth
 import xml.dom.minidom
 import os
 import socket
@@ -11,8 +7,11 @@ import datetime
 import smtplib
 from email.mime.text import MIMEText
 import time
-import syslog
 import ssl
+import flask
+from flask import Flask,redirect,render_template,session,url_for
+import requests
+#from requests.auth import HTTPBasicAuth
 
 def get_random_name():
    adjs=['blue','yellow','green','red','crazy','happy','nice','sad','cool','hot']
@@ -54,13 +53,13 @@ def pexip_create_room():
 
 def sendemail(l,m):
   try:
-  	msg = MIMEText(m)
-  	msg['Subject'] = 'Meeting invite'
-  	msg['From'] = smtp_sender
-  	msg['To'] = ",".join(l)
-  	s = smtplib.SMTP(smtp_server)
-  	s.sendmail(smtp_sender, l, msg.as_string())
-  	s.quit()
+   msg = MIMEText(m)
+   msg['Subject'] = 'Meeting invite'
+   msg['From'] = smtp_sender
+   msg['To'] = ",".join(l)
+   s = smtplib.SMTP(smtp_server)
+   s.sendmail(smtp_sender, l, msg.as_string())
+   s.quit()
   except:
     pass
   return None
@@ -127,4 +126,4 @@ if __name__ == '__main__':
       ctxt.options|=ssl.OP_NO_SSLv3
       app.run(host='0.0.0.0',port=443,ssl_context=ctxt)
    except:
-   	  app.run(host='0.0.0.0',port=443,ssl_context='adhoc')
+      app.run(host='0.0.0.0',port=443,ssl_context='adhoc')
