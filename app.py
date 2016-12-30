@@ -27,8 +27,12 @@ def get_pin():
    return str(random.randint(0,9999)).zfill(4)
 
 def add_alias(a,name,c):
-   alias={x['name']:int(y['alias']) for y in x['aliases'] if y.get('alias','').isdigit() for x in a}
-   newalias=min(alias.values())-1
+   aliases={}
+   for x in a:
+      for y in x.get('aliases',[]):
+         if y.get('alias','').isdigit():
+            aliases[x['name']]=int(y['alias'])
+   newalias=min(aliases.values())-1
    r = post("https://%s/api/admin/configuration/v1/conference_alias/" % PEXIP_SERVER, auth=('admin', PEXIP_PASSWORD),data=json.dumps({'alias':newalias,'conference':c}))
    r = post("https://%s/api/admin/configuration/v1/conference_alias/" % PEXIP_SERVER, auth=('admin', PEXIP_PASSWORD),data=json.dumps({'alias':name,'conference':c}))
    r = post("https://%s/api/admin/configuration/v1/conference_alias/" % PEXIP_SERVER, auth=('admin', PEXIP_PASSWORD),data=json.dumps({'alias':"%s@%s" % (name,PEXIP_URL),'conference':c}))
