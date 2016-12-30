@@ -11,6 +11,13 @@ import ssl
 from flask import Flask,redirect,render_template,session,url_for,request
 from requests import get,post
 
+PEXIP_SERVER=os.environ.get('pexip_server','')
+PEXIP_PASSWORD=os.environ.get('pexip_password','')
+PEXIP_URL=os.environ.get('pexip_url','')
+CAS_SERVER=os.environ.get('cas_server','')
+SMTP_SERVER=os.environ.get('smtp_server','')
+SMTP_SENDER=os.environ.get('smtp_sender','')
+
 def get_random_name():
    adjs=['blue','yellow','green','red','crazy','happy','nice','sad','cool','hot']
    nouns=['horse','cat','dog','monkey','car','bike','plane','tomato','apple','banana']
@@ -22,27 +29,27 @@ def get_pin():
 def add_alias(a,name,c):
    alias={x['name']:int(y['alias']) for y in x['aliases'] if y.get('alias','').isdigit() for x in a}
    newalias=min(alias.values())-1
-   r = post("https://%s/api/admin/configuration/v1/conference_alias/" % pexip_server, auth=('admin', pexip_password),data=json.dumps({'alias':newalias,'conference':c}))
-   r = post("https://%s/api/admin/configuration/v1/conference_alias/" % pexip_server, auth=('admin', pexip_password),data=json.dumps({'alias':name,'conference':c}))
-   r = post("https://%s/api/admin/configuration/v1/conference_alias/" % pexip_server, auth=('admin', pexip_password),data=json.dumps({'alias':"%s@%s" % (name,pexip_url),'conference':c}))
+   r = post("https://%s/api/admin/configuration/v1/conference_alias/" % PEXIP_SERVER, auth=('admin', PEXIP_PASSWORD),data=json.dumps({'alias':newalias,'conference':c}))
+   r = post("https://%s/api/admin/configuration/v1/conference_alias/" % PEXIP_SERVER, auth=('admin', PEXIP_PASSWORD),data=json.dumps({'alias':name,'conference':c}))
+   r = post("https://%s/api/admin/configuration/v1/conference_alias/" % PEXIP_SERVER, auth=('admin', PEXIP_PASSWORD),data=json.dumps({'alias':"%s@%s" % (name,PEXIP_URL),'conference':c}))
    return newalias
 
 def pexip_create_room():
    l=[]
    nx="/api/admin/configuration/v1/conference/"
    while nx:
-      r = get("https://%s%s" % (pexip_server,nx), auth=('admin', pexip_password))
+      r = get("https://%s%s" % (PEXIP_SERVER,nx), auth=('admin', PEXIP_PASSWORD))
       j= json.loads(r.text)
       nx=j['meta']['next']
       l+=j['objects']
    while True:
       n=get_random_name()
       d={'name': n, 'service_type': 'conference','pin':get_pin(),'allow_guests':True,'guest_pin':get_pin(),'description': "ad-hoc room created: %s" % datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-      r = post("https://%s/api/admin/configuration/v1/conference/" % pexip_server, auth=('admin', pexip_password),data=json.dumps(d))
+      r = post("https://%s/api/admin/configuration/v1/conference/" % PEXIP_SERVER, auth=('admin', PEXIP_PASSWORD),data=json.dumps(d))
       if r.status_code==201: break
    c=r.headers['location']
    a=add_alias(l,n,c)
-   r = get(c, auth=('admin', pexip_password))
+   r = get(c, auth=('admin', PEXIP_PASSWORD))
    rd=json.loads(r.text)
    return (rd['name'],rd['pin'],a)
 
@@ -50,21 +57,14 @@ def sendemail(l,m):
   try:
    msg = MIMEText(m)
    msg['Subject'] = 'Meeting invite'
-   msg['From'] = smtp_sender
+   msg['From'] = SMTP_SENDER
    msg['To'] = ",".join(l)
-   s = SMTP(smtp_server)
-   s.sendmail(smtp_sender, l, msg.as_string())
+   s = SMTP(SMTP_SERVER)
+   s.sendmail(SMTP_SENDER, l, msg.as_string())
    s.quit()
   except:
     pass
   return None
-
-pexip_server=os.environ.get('pexip_server','')
-pexip_password=os.environ.get('pexip_password','')
-pexip_url=os.environ.get('pexip_url','')
-cas_server=os.environ.get('cas_server','')
-smtp_server=os.environ.get('smtp_server','')
-smtp_sender=os.environ.get('smtp_sender','')
 
 app = Flask(__name__)
 
@@ -72,15 +72,15 @@ app = Flask(__name__)
 def route_root():
    t=request.args.get('ticket','')
    if t:
-      x=get("https://%s/serviceValidate?service=https://%s&ticket=%s" % (cas_server,socket.gethostname(),t))
+      x=get("https://%s/serviceValidate?service=https://%s&ticket=%s" % (CAS_SERVER,socket.gethostname(),t))
       dom = xml.dom.minidom.parseString(x.text.encode('utf-8'))
       try:
          casuser=dom.getElementsByTagName('cas:user')[0].childNodes[0].nodeValue
       except:
-         return redirect("https://%s/?service=https://%s" % (cas_server,socket.gethostname()))
+         return redirect("https://%s/?service=https://%s" % (CAS_SERVER,socket.gethostname()))
       return redirect("https://%s/success?room=%s&pin=%s&alias=%s" % ((socket.gethostname(),)+pexip_create_room()))
    else:
-      return redirect("https://%s/?service=https://%s" % (cas_server,socket.gethostname())) 
+      return redirect("https://%s/?service=https://%s" % (CAS_SERVER,socket.gethostname())) 
 
 @app.route('/success',methods=['GET', 'POST'])
 def success():
@@ -90,8 +90,8 @@ def success():
      pin=session['pin']
      room=session['room']
      l=message.split(',')
-     sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1\naccess code: %s" % (pexip_url,room,pin,session['alias']))
-     return render_template('wait2.html',pin=pin,room=room,url=pexip_url,name=name)
+     sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1\naccess code: %s" % (PEXIP_URL,room,pin,session['alias']))
+     return render_template('wait2.html',pin=pin,room=room,url=PEXIP_URL,name=name)
    else: 
      pin=request.args.get('pin','')
      room=request.args.get('room','')
@@ -106,7 +106,7 @@ def wait():
    pin=request.args.get('pin','')
    room=request.args.get('room','')
    while True:
-      x=post("https://%s/api/client/v2/conferences/%s/request_token" % (pexip_url,room),headers={'pin':pin},data={"display_name": "Pexip-bot"})
+      x=post("https://%s/api/client/v2/conferences/%s/request_token" % (PEXIP_URL,room),headers={'pin':pin},data={"display_name": "Pexip-bot"})
       if x.status_code==200:
          return json.dumps({'Done':True})
       sleep(3)
