@@ -117,9 +117,7 @@ if __name__ == '__main__':
       ctxt=ssl.SSLContext(ssl.PROTOCOL_SSLv23)
       h=socket.gethostname()
       ctxt.load_cert_chain("/etc/letsencrypt/live/%s/cert.pem" % h,"/etc/letsencrypt/live/%s/privkey.pem" % h)
-      ctxt.options|=ssl.OP_NO_SSLv2
-      ctxt.options|=ssl.OP_NO_SSLv3
-      ctxt.options|=ssl.OP_NO_TLSv1
+      ctxt.options|=ssl.OP_NO_SSLv2|ssl.OP_NO_SSLv3|ssl.OP_NO_TLSv1
       app.run(host='0.0.0.0',port=443,ssl_context=ctxt)
    except:
       app.run(host='0.0.0.0',port=443,ssl_context='adhoc')
