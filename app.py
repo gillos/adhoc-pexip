@@ -1,5 +1,5 @@
 import xml.dom.minidom
-import os
+from os import urandom,environ
 import socket
 import json
 import random
@@ -11,12 +11,12 @@ import ssl
 from flask import Flask,redirect,render_template,session,url_for,request
 from requests import get,post
 
-PEXIP_SERVER=os.environ.get('pexip_server','')
-PEXIP_PASSWORD=os.environ.get('pexip_password','')
-PEXIP_URL=os.environ.get('pexip_url','')
-CAS_SERVER=os.environ.get('cas_server','')
-SMTP_SERVER=os.environ.get('smtp_server','')
-SMTP_SENDER=os.environ.get('smtp_sender','')
+PEXIP_SERVER=environ.get('pexip_server','')
+PEXIP_PASSWORD=environ.get('pexip_password','')
+PEXIP_URL=environ.get('pexip_url','')
+CAS_SERVER=environ.get('cas_server','')
+SMTP_SERVER=environ.get('smtp_server','')
+SMTP_SENDER=environ.get('smtp_sender','')
 
 def get_random_name():
    adjs=['blue','yellow','green','red','crazy','happy','nice','sad','cool','hot']
@@ -112,7 +112,7 @@ def wait():
       sleep(3)
 
 if __name__ == '__main__':
-   app.secret_key = os.urandom(24)
+   app.secret_key = urandom(24)
    try:
       ctxt=ssl.SSLContext(ssl.PROTOCOL_SSLv23)
       h=socket.gethostname()
