@@ -8,7 +8,7 @@ from smtplib import SMTP
 from email.mime.text import MIMEText
 from time import sleep
 import ssl
-from flask import Flask,redirect,render_template,session,url_for,request
+from flask import Flask,redirect,render_template,session,request
 from requests import get,post
 
 PEXIP_SERVER=environ.get('pexip_server','')
