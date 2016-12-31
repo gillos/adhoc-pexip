@@ -10,6 +10,7 @@ from time import sleep
 import ssl
 from flask import Flask,redirect,render_template,session,request
 from requests import get,post
+import jinja2
 
 PEXIP_SERVER=environ.get('pexip_server','')
 PEXIP_PASSWORD=environ.get('pexip_password','')
@@ -17,6 +18,7 @@ PEXIP_URL=environ.get('pexip_url','')
 CAS_SERVER=environ.get('cas_server','')
 SMTP_SERVER=environ.get('smtp_server','')
 SMTP_SENDER=environ.get('smtp_sender','')
+MAIL_TEMPLATE=environ.get('mail_template','')
 
 def get_random_name():
    adjs=['blue','yellow','green','red','crazy','happy','nice','sad','cool','hot']
@@ -57,14 +59,17 @@ def pexip_create_room():
    rd=json.loads(r.text)
    return (rd['name'],rd['pin'],a)
 
-def sendemail(l,m):
+def sendemail(l,m,mimejinja=None):
   try:
    msg = MIMEText(m)
    msg['Subject'] = 'Meeting invite'
    msg['From'] = SMTP_SENDER
    msg['To'] = ",".join(l)
    s = SMTP(SMTP_SERVER)
-   s.sendmail(SMTP_SENDER, l, msg.as_string())
+   if mimejinja:
+      s.sendmail(SMTP_SENDER, l, mimejinja)
+   else:
+      s.sendmail(SMTP_SENDER, l, msg.as_string())
    s.quit()
   except:
     pass
@@ -89,12 +94,15 @@ def route_root():
 @app.route('/success',methods=['GET', 'POST'])
 def success():
    if request.method == 'POST':
-     name=request.form['name']
-     message=request.form['message']
-     pin=session['pin']
-     room=session['room']
-     l=message.split(',')
-     sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1\naccess code: %s" % (PEXIP_URL,room,pin,session['alias']))
+      name=request.form['name']
+      message=request.form['message']
+      pin=session['pin']
+      room=session['room']
+      l=message.split(',')
+      with open(MAIL_TEMPLATE) as f:
+         msgx=jinja2.Template(f.read())
+         sendemail(l,"",msgx.render(meeting_url="https://%s/webapp/?conference=%s&pin=%s&join=1" % (PEXIP_URL,room,pin),access_code=session['alias']))
+     #sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1\naccess code: %s" % (PEXIP_URL,room,pin,session['alias']))
      return render_template('wait2.html',pin=pin,room=room,url=PEXIP_URL,name=name)
    else: 
      pin=request.args.get('pin','')
