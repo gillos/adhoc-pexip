@@ -99,9 +99,9 @@ def success():
       pin=session['pin']
       room=session['room']
       l=message.split(',')
-      with open(MAIL_TEMPLATE) as f:
-         msgx=jinja2.Template(f.read())
-         sendemail(l,"",msgx.render(meeting_url="https://%s/webapp/?conference=%s&pin=%s&join=1" % (PEXIP_URL,room,pin),access_code=session['alias']))
+      x=get("https://www.lan.kth.se/~ja/mime.html")
+      msgx=jinja2.Template(x.text)
+      sendemail(l,"",msgx.render(from=SMTP_SENDER,to=",".join(l),meeting_url="https://%s/webapp/?conference=%s&pin=%s&join=1" % (PEXIP_URL,room,pin),access_code=session['alias']))
       #sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1\naccess code: %s" % (PEXIP_URL,room,pin,session['alias']))
       return render_template('wait2.html',pin=pin,room=room,url=PEXIP_URL,name=name)
    else: 
