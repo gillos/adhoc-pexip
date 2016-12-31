@@ -62,9 +62,6 @@ def pexip_create_room():
 
 def sendemail(l,mimejinja):
    try:
-      msg['Subject'] = 'Meeting invite'
-      msg['From'] = SMTP_SENDER
-      msg['To'] = ",".join(l)
       s = SMTP(SMTP_SERVER)
       s.sendmail(SMTP_SENDER, l, mimejinja)
       s.quit()
