@@ -11,6 +11,7 @@ import ssl
 from flask import Flask,redirect,render_template,session,request
 from requests import get,post
 import jinja2
+import syslog
 
 PEXIP_SERVER=environ.get('pexip_server','')
 PEXIP_PASSWORD=environ.get('pexip_password','')
@@ -60,17 +61,16 @@ def pexip_create_room():
    return (rd['name'],rd['pin'],a)
 
 def sendemail(l,mimejinja):
-  try:
-   msg = MIMEText(m)
-   msg['Subject'] = 'Meeting invite'
-   msg['From'] = SMTP_SENDER
-   msg['To'] = ",".join(l)
-   s = SMTP(SMTP_SERVER)
-   s.sendmail(SMTP_SENDER, l, mimejinja)
-   s.quit()
-  except:
-    pass
-  return None
+   try:
+      msg['Subject'] = 'Meeting invite'
+      msg['From'] = SMTP_SENDER
+      msg['To'] = ",".join(l)
+      s = SMTP(SMTP_SERVER)
+      s.sendmail(SMTP_SENDER, l, mimejinja)
+      s.quit()
+   except:
+      pass
+   return None
 
 app = Flask(__name__)
 
