@@ -59,17 +59,14 @@ def pexip_create_room():
    rd=json.loads(r.text)
    return (rd['name'],rd['pin'],a)
 
-def sendemail(l,m,mimejinja=None):
+def sendemail(l,mimejinja):
   try:
    msg = MIMEText(m)
    msg['Subject'] = 'Meeting invite'
    msg['From'] = SMTP_SENDER
    msg['To'] = ",".join(l)
    s = SMTP(SMTP_SERVER)
-   if mimejinja:
-      s.sendmail(SMTP_SENDER, l, mimejinja)
-   else:
-      s.sendmail(SMTP_SENDER, l, msg.as_string())
+   s.sendmail(SMTP_SENDER, l, mimejinja)
    s.quit()
   except:
     pass
@@ -99,10 +96,9 @@ def success():
       pin=session['pin']
       room=session['room']
       l=message.split(',')
-      x=get("https://www.lan.kth.se/~ja/mime.html")
+      x=get(MAIL_TEMPLATE)
       msgx=jinja2.Template(x.text)
-      sendemail(l,"",msgx.render(sender=SMTP_SENDER,to=",".join(l),meeting_url="https://%s/webapp/?conference=%s&pin=%s&join=1" % (PEXIP_URL,room,pin),access_code=session['alias']))
-      #sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1\naccess code: %s" % (PEXIP_URL,room,pin,session['alias']))
+      sendemail(l,msgx.render(sender=SMTP_SENDER,to=",".join(l),meeting_url="https://%s/webapp/?conference=%s&pin=%s&join=1" % (PEXIP_URL,room,pin),access_code=session['alias']))
       return render_template('wait2.html',pin=pin,room=room,url=PEXIP_URL,name=name)
    else: 
      pin=request.args.get('pin','')
