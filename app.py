@@ -98,13 +98,13 @@ def success():
       sendemail(l,msgx.render(sender=SMTP_SENDER,to=",".join(l),meeting_url="https://%s/webapp/?conference=%s&pin=%s&join=1" % (PEXIP_URL,room,pin),access_code=session['alias'],pin=pin))
       return render_template('wait2.html',pin=pin,room=room,url=PEXIP_URL,name=name)
    else: 
-     pin=request.args.get('pin','')
-     room=request.args.get('room','')
-     alias=request.args.get('alias','')
-     session['pin']=pin
-     session['room']=room
-     session['alias']=alias
-     return render_template('wait.html')
+      pin=request.args.get('pin','')
+      room=request.args.get('room','')
+      alias=request.args.get('alias','')
+      session['pin']=pin
+      session['room']=room
+      session['alias']=alias
+      return render_template('wait.html')
 
 @app.route('/wait')
 def wait():
