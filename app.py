@@ -102,8 +102,8 @@ def success():
       with open(MAIL_TEMPLATE) as f:
          msgx=jinja2.Template(f.read())
          sendemail(l,"",msgx.render(meeting_url="https://%s/webapp/?conference=%s&pin=%s&join=1" % (PEXIP_URL,room,pin),access_code=session['alias']))
-     #sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1\naccess code: %s" % (PEXIP_URL,room,pin,session['alias']))
-     return render_template('wait2.html',pin=pin,room=room,url=PEXIP_URL,name=name)
+      #sendemail(l,"https://%s/webapp/?conference=%s&pin=%s&join=1\naccess code: %s" % (PEXIP_URL,room,pin,session['alias']))
+      return render_template('wait2.html',pin=pin,room=room,url=PEXIP_URL,name=name)
    else: 
      pin=request.args.get('pin','')
      room=request.args.get('room','')
